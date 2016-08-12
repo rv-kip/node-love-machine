@@ -13,11 +13,11 @@ var slack_api_token =  process.env.SLACK_API_TOKEN || null;
 
 logger.debug('SLACK_TOKEN', slack_token);
 var app = express();
-app.use(bodyParser());
+app.use(bodyParser.urlencoded({extended: false}));
 app.set('config', config);
 app.set('package_json', package_json);
 app.set('port', process.env.PORT  || 8081);
-// app.set('hostname', config.server.hostname || '0.0.0.0');
+app.set('hostname', process.env.HOST || '0.0.0.0');
 app.set('slack_token', slack_token);
 app.set('slack_api_token', slack_api_token);
 
@@ -32,20 +32,14 @@ app.get('*', function (req, res, next){ // Log all requests
 });
 
 // Authenticate all posts and extract params
-// app.post('*', function (req, res, next){
-//     var vals = {};
-//     if (req.body.params) {
-//         req.body.params.forEach(function(param){
-//             vals[param['name']] = param['value'];
-//         });
-//         if (vals.token !== app.get('slack_token')) {
-//             return res.sendStatus(401);
-//         } else {
-//             req.slack_params = vals;
-//             next();
-//         }
-//     }
-// });
+app.post('*', function (req, res, next){
+    logger.info(req.body);
+    if (req.body && req.body['token'] === app.get('slack_token')) {
+        return next();
+    } else {
+        return res.status(401).send("Sorry. Your credentials are invalid.");
+    }
+});
 
 app.get('/ping', handle_ping);
 app.post('/love', handle_love);
@@ -65,38 +59,33 @@ function handle_ping(req, res){
 }
 
 function handle_love(req, res){
-    logger.info(req.body);
+    var fields = [
+        'user_id',
+        'user_name',
+        'text',
+        'team_domain',
+    ];
 
-    console.log(req.body);
+    // get the @user from the beginning of message
+    re = /^\@(\w+)/;
+    matches = req.slack_params.text.match(re);
+    if (matches && matches[1]) {
+        var slack_user_names = Object.keys(app.get('slack_users')) || [],
+            recipient_user_name = matches[1];
 
-
-    // var fields = [
-    //     'user_id',
-    //     'user_name',
-    //     'text',
-    //     'team_domain',
-    // ];
-
-    // // get the @user from the beginning of message
-    // re = /^\@(\w+)/;
-    // matches = req.slack_params.text.match(re);
-    // if (matches && matches[1]) {
-    //     var slack_user_names = Object.keys(app.get('slack_users')) || [],
-    //         recipient_user_name = matches[1];
-
-    //     if (! _.includes(slack_user_names, recipient_user_name)) {
-    //         // TODO inject message back to slack channel
-    //         return res.sendStatus(404);
-    //     }
-    // }
-    // var message = {};
-    // fields.forEach(function(field){
-    //     message[field] = req.slack_params[field];
-    // });
-    // if (message) {
-    //     logger.info('***LOVE', message);
-    //     love.push(message);
-    // }
+        if (! _.includes(slack_user_names, recipient_user_name)) {
+            // TODO inject message back to slack channel
+            return res.sendStatus(404);
+        }
+    }
+    var message = {};
+    fields.forEach(function(field){
+        message[field] = req.body[field];
+    });
+    if (message) {
+        logger.info('***LOVE', message);
+        love.push(message);
+    }
     return res.status(200).send({'status': 'OK'});
 }
 
