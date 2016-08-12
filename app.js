@@ -16,8 +16,8 @@ var app = express();
 app.use(bodyParser.json());
 app.set('config', config);
 app.set('package_json', package_json);
-app.set('port', config.server.port || 8081);
-app.set('hostname', config.server.hostname || '0.0.0.0');
+app.set('port', process.env.PORT  || 8081);
+// app.set('hostname', config.server.hostname || '0.0.0.0');
 app.set('slack_token', slack_token);
 app.set('slack_api_token', slack_api_token);
 
@@ -126,6 +126,7 @@ setInterval(function() {
 }, 60 * 1000);
 
 // Start server
+
 var server = app.listen(app.get('port'), app.get('hostname'), function() {
     logger.info('Server listening on http://' + app.get('hostname') + ':' + app.get('port'));
 });
