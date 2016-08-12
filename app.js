@@ -23,7 +23,7 @@ app.set('slack_api_token', slack_api_token);
 
 var love = []; // Temp in memory
 
-// Routes
+// Log all requests
 app.get('*', function (req, res, next){ // Log all requests
     var app = req.app;
     var logline = ['method=' + req.method, 'path=' + req.path, 'ip=' + req.ip];
@@ -31,7 +31,7 @@ app.get('*', function (req, res, next){ // Log all requests
     next();
 });
 
-// Authenticate all posts and extract params
+// Authenticate all posts
 app.post('*', function (req, res, next){
     logger.info(req.body);
     if (req.body && req.body['token'] === app.get('slack_token')) {
@@ -41,6 +41,7 @@ app.post('*', function (req, res, next){
     }
 });
 
+// Routes
 app.get('/ping', handle_ping);
 app.post('/love', handle_love);
 app.get('/recentlove', handle_recentlove);
@@ -59,26 +60,29 @@ function handle_ping(req, res){
 }
 
 function handle_love(req, res){
-    var fields = [
-        'user_id',
-        'user_name',
-        'text',
-        'team_domain',
-    ];
+
 
     // get the @user from the beginning of message
     re = /^\@(\w+)/;
     matches = req.body.text.match(re);
+    var recipient_user_name;
     if (matches && matches[1]) {
-        var slack_user_names = Object.keys(app.get('slack_users')) || [],
-            recipient_user_name = matches[1];
+        var slack_user_names = Object.keys(app.get('slack_users')) || [];
+
+        recipient_user_name = matches[1];
 
         if (! _.includes(slack_user_names, recipient_user_name)) {
             // TODO inject message back to slack channel
-            return res.sendStatus(404);
+            return res.status(404).send('Sorry, the user "' + req.body.text + '" is not valid.');
         }
     }
-    var message = {};
+    var message = {},
+        fields = [
+            'user_id',
+            'user_name',
+            'text',
+            'team_domain',
+        ];
     fields.forEach(function(field){
         message[field] = req.body[field];
     });
@@ -86,7 +90,21 @@ function handle_love(req, res){
         logger.info('***LOVE', message);
         love.push(message);
     }
-    return res.status(200).send({'status': 'OK'});
+
+    // send message back to chat
+    request({
+        url: req.body.response_url,
+        method: 'POST',
+        json: {
+            text: req.body.user_name + ' send love to ' + recipient_user_name + '!'
+        }
+    }, function(err, res, body){
+        if (err){
+            logger.error(err);
+        }
+    });
+
+    return res.sendStatus(200)
 }
 
 function handle_recentlove(req, res){
