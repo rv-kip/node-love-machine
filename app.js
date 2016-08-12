@@ -13,7 +13,7 @@ var slack_api_token =  process.env.SLACK_API_TOKEN || null;
 
 logger.debug('SLACK_TOKEN', slack_token);
 var app = express();
-app.use(bodyParser.json());
+app.use(bodyParser.raw());
 app.set('config', config);
 app.set('package_json', package_json);
 app.set('port', process.env.PORT  || 8081);
