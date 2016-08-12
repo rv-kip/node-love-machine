@@ -65,7 +65,7 @@ function handle_ping(req, res){
 }
 
 function handle_love(req, res){
-    logger.info(res.body);
+    logger.info(req.body);
 
 
     // var fields = [
@@ -95,7 +95,7 @@ function handle_love(req, res){
     //     logger.info('***LOVE', message);
     //     love.push(message);
     // }
-    return res.send(200).send({'status': 'OK'});
+    return res.status(200).send({'status': 'OK'});
 }
 
 function handle_recentlove(req, res){
