@@ -2,8 +2,10 @@
   "name": "node-love-machine",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
+    "start": "node app.js | ./node_modules/bunyan/bin/bunyan",
+    "nodemon": "nodemon app.js | ./node_modules/bunyan/bin/bunyan",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +17,12 @@
   "bugs": {
     "url": "https://github.com/rv-kip/node-love-machine/issues"
   },
-  "homepage": "https://github.com/rv-kip/node-love-machine#readme"
+  "homepage": "https://github.com/rv-kip/node-love-machine#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "bunyan": "^1.8.1",
+    "express": "^4.14.0",
+    "lodash": "^4.15.0",
+    "request": "^2.74.0"
+  }
 }
