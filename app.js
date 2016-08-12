@@ -47,20 +47,20 @@ app.post('*', function (req, res, next){
     }
 });
 
-app.get("/ping", handle_ping);
-app.post("/love", handle_love);
-app.get("/recentlove", handle_recentlove);
+app.get('/ping', handle_ping);
+app.post('/love', handle_love);
+app.get('/recentlove', handle_recentlove);
 
 // Handlers
 function handle_ping(req, res){
-    var app = req.app;
+    var app = req.app,
+        ping_data = {
+            'status'        : 'OK',
+            'name'          : app.get('package_json').name,
+            'version'       : app.get('package_json').version,
+            'pid'           : '_' + process.pid
+        };
 
-    var ping_data = {
-        "status"        : "OK",
-        "name"          : app.get('package_json').name,
-        "version"       : app.get('package_json').version,
-        "pid"           : "_" + process.pid
-    };
     res.status(200).send(ping_data);
 }
 
@@ -79,20 +79,21 @@ function handle_love(req, res){
     if (matches && matches[1]) {
         var slack_user_names = Object.keys(app.get('slack_users')) || [],
             recipient_user_name = matches[1];
+
         if (! _.includes(slack_user_names, recipient_user_name)) {
             // TODO inject message back to slack channel
             return res.sendStatus(404);
         }
     }
-    var message = {}
+    var message = {};
     fields.forEach(function(field){
         message[field] = req.slack_params[field];
-    })
+    });
     if (message) {
-        logger.info("***LOVE", message);
+        logger.info('***LOVE', message);
         love.push(message);
     }
-    return res.sendStatus(200);
+    return res.send(200).send({'status': 'OK'});
 }
 
 function handle_recentlove(req, res){
