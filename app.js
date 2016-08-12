@@ -67,6 +67,8 @@ function handle_ping(req, res){
 function handle_love(req, res){
     logger.info(req.body);
 
+    console.log(req.body);
+
 
     // var fields = [
     //     'user_id',
