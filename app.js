@@ -61,7 +61,7 @@ function handle_ping(req, res){
         "version"       : app.get('package_json').version,
         "pid"           : "_" + process.pid
     };
-    res.sendStatus(200).send(ping_data);
+    res.status(200).send(ping_data);
 }
 
 function handle_love(req, res){
