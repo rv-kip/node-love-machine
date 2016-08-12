@@ -94,7 +94,7 @@ function handle_love(req, res){
     // if (message) {
     //     logger.info('***LOVE', message);
     //     love.push(message);
-    }
+    // }
     return res.send(200).send({'status': 'OK'});
 }
 
