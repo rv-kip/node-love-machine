@@ -68,7 +68,7 @@ function handle_love(req, res){
 
     // get the @user from the beginning of message
     re = /^\@(\w+)/;
-    matches = req.slack_params.text.match(re);
+    matches = req.body.text.match(re);
     if (matches && matches[1]) {
         var slack_user_names = Object.keys(app.get('slack_users')) || [],
             recipient_user_name = matches[1];
