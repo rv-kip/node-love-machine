@@ -32,20 +32,20 @@ app.get('*', function (req, res, next){ // Log all requests
 });
 
 // Authenticate all posts and extract params
-app.post('*', function (req, res, next){
-    var vals = {};
-    if (req.body.params) {
-        req.body.params.forEach(function(param){
-            vals[param['name']] = param['value'];
-        });
-        if (vals.token !== app.get('slack_token')) {
-            return res.sendStatus(401);
-        } else {
-            req.slack_params = vals;
-            next();
-        }
-    }
-});
+// app.post('*', function (req, res, next){
+//     var vals = {};
+//     if (req.body.params) {
+//         req.body.params.forEach(function(param){
+//             vals[param['name']] = param['value'];
+//         });
+//         if (vals.token !== app.get('slack_token')) {
+//             return res.sendStatus(401);
+//         } else {
+//             req.slack_params = vals;
+//             next();
+//         }
+//     }
+// });
 
 app.get('/ping', handle_ping);
 app.post('/love', handle_love);
@@ -68,32 +68,32 @@ function handle_love(req, res){
     logger.info(res.body);
 
 
-    var fields = [
-        'user_id',
-        'user_name',
-        'text',
-        'team_domain',
-    ];
+    // var fields = [
+    //     'user_id',
+    //     'user_name',
+    //     'text',
+    //     'team_domain',
+    // ];
 
-    // get the @user from the beginning of message
-    re = /^\@(\w+)/;
-    matches = req.slack_params.text.match(re);
-    if (matches && matches[1]) {
-        var slack_user_names = Object.keys(app.get('slack_users')) || [],
-            recipient_user_name = matches[1];
+    // // get the @user from the beginning of message
+    // re = /^\@(\w+)/;
+    // matches = req.slack_params.text.match(re);
+    // if (matches && matches[1]) {
+    //     var slack_user_names = Object.keys(app.get('slack_users')) || [],
+    //         recipient_user_name = matches[1];
 
-        if (! _.includes(slack_user_names, recipient_user_name)) {
-            // TODO inject message back to slack channel
-            return res.sendStatus(404);
-        }
-    }
-    var message = {};
-    fields.forEach(function(field){
-        message[field] = req.slack_params[field];
-    });
-    if (message) {
-        logger.info('***LOVE', message);
-        love.push(message);
+    //     if (! _.includes(slack_user_names, recipient_user_name)) {
+    //         // TODO inject message back to slack channel
+    //         return res.sendStatus(404);
+    //     }
+    // }
+    // var message = {};
+    // fields.forEach(function(field){
+    //     message[field] = req.slack_params[field];
+    // });
+    // if (message) {
+    //     logger.info('***LOVE', message);
+    //     love.push(message);
     }
     return res.send(200).send({'status': 'OK'});
 }
