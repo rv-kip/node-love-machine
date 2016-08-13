@@ -113,7 +113,7 @@ function handle_love(req, res){
 
 function handle_recentlove(req, res){
     // TODO: Need to insert into chat
-    var retval = [];
+    var retval = ["*Recent Love:*"];
     love.forEach(function (love_item){
         retval.push(love_item.user_name + ': ' + love_item.text);
     });
