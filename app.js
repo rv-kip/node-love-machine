@@ -113,12 +113,12 @@ function handle_love(req, res){
 
 function handle_recentlove(req, res){
     // TODO: Need to insert into chat
-    var retval = ["*Recent Love:*"];
+    var retval = ['*Recent Love*:'];
     love.forEach(function (love_item){
         retval.push(love_item.user_name + ': ' + love_item.text);
     });
 
-    return res.json(retval.join("\n"));
+    return res.send(retval.join("\n"));
 }
 
 // Refresh slack user list for verification
