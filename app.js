@@ -115,10 +115,10 @@ function handle_recentlove(req, res){
     // TODO: Need to insert into chat
     var retval = [];
     love.forEach(function (love_item){
-        retVal.push(love_item.user_name + ': ' + love_item.text);
+        retval.push(love_item.user_name + ': ' + love_item.text);
     });
 
-    return res.json(retVal.join('\n'));
+    return res.json(retval.join('\n'));
 }
 
 // Refresh slack user list for verification
