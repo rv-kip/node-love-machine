@@ -59,6 +59,10 @@ function handle_ping(req, res){
 
 function handle_love(req, res){
 
+    // TODO: this is just a hack for a demo
+    if (_.includes(req.body.text,'recent love')) {
+        return handle_recentlove(req, res);
+    }
 
     // get the @user from the beginning of message
     re = /^\@(\w+)\s+(.+)$/;
@@ -103,7 +107,8 @@ function handle_love(req, res){
         }
     });
 
-    return res.sendStatus(200)
+    // TODO: pull from a variety of phrases
+    return res.status(200).send('Love has been sent');
 }
 
 function handle_recentlove(req, res){
