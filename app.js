@@ -118,7 +118,7 @@ function handle_recentlove(req, res){
         retval.push(love_item.user_name + ': ' + love_item.text);
     });
 
-    return res.json(retval.join('<br>'));
+    return res.json(retval.join("\n"));
 }
 
 // Refresh slack user list for verification
