@@ -2,7 +2,6 @@ var express                 = require('express'),
     request                 = require('request'),
     _                       = require('lodash');
 
-var config                  = require('./config/config.js').config,
     logger                  = require('./lib/logger'),
     package_json            = require('./package.json');
 
@@ -14,7 +13,6 @@ var slack_api_token =  process.env.SLACK_API_TOKEN || null;
 logger.debug('SLACK_TOKEN', slack_token);
 var app = express();
 app.use(bodyParser.urlencoded({extended: false}));
-app.set('config', config);
 app.set('package_json', package_json);
 app.set('port', process.env.PORT  || 8081);
 app.set('hostname', process.env.HOST || '0.0.0.0');
@@ -63,17 +61,18 @@ function handle_love(req, res){
 
 
     // get the @user from the beginning of message
-    re = /^\@(\w+)/;
+    re = /^\@(\w+)\s+(.+)$/;
     matches = req.body.text.match(re);
     var recipient_user_name;
     if (matches && matches[1]) {
         var slack_user_names = Object.keys(app.get('slack_users')) || [];
 
         recipient_user_name = matches[1];
+        love_message = matches[2];
 
         if (! _.includes(slack_user_names, recipient_user_name)) {
             // TODO inject message back to slack channel
-            return res.status(404).send('Sorry, the user "' + req.body.text + '" is not valid.');
+            return res.status(404).send('Sorry, the user "' + recipient_user_name + '" is not valid.');
         }
     }
     var message = {},
@@ -96,7 +95,7 @@ function handle_love(req, res){
         url: req.body.response_url,
         method: 'POST',
         json: {
-            text: req.body.user_name + ' send love to ' + recipient_user_name + '!'
+            text: req.body.user_name + ' sent love to ' + recipient_user_name + ' for "' + love_message + '"!'
         }
     }, function(err, res, body){
         if (err){
@@ -135,7 +134,7 @@ function get_slack_user_list() {
 get_slack_user_list()
 setInterval(function() {
     get_slack_user_list();
-}, 60 * 1000);
+}, 60 * 60 * 1000);
 
 // Start server
 
