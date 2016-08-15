@@ -42,6 +42,7 @@ app.post('*', function (req, res, next){
 });
 
 // Routes
+app.get('/:love_id', handle_love_link);
 app.get('/ping', handle_ping);
 app.post('/love', handle_love);
 app.get('/recentlove', handle_recentlove);
@@ -57,6 +58,13 @@ function handle_ping(req, res){
         };
 
     res.status(200).send(ping_data);
+}
+
+function handle_love_link(req, res){
+    var love_id = req.params.love_id,
+        message = love[love_id];
+
+    return res.status(200).send(message);
 }
 
 function handle_love(req, res){
@@ -96,7 +104,7 @@ function handle_love(req, res){
         logger.info('love sent', message);
         love.push(message);
         love_id = love.length - 1;
-        link = app.get('heroku_host') + 'love_id';
+        link = app.get('heroku_host') + love_id;
     }
 
     // send message back to chat
