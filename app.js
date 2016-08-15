@@ -1,16 +1,17 @@
-var express                 = require('express'),
+var bodyParser              = require('body-parser'),
+    express                 = require('express'),
     request                 = require('request'),
     _                       = require('lodash');
 
-    logger                  = require('./lib/logger'),
+var logger                  = require('./lib/logger'),
     package_json            = require('./package.json');
 
-var bodyParser = require('body-parser');
-var slack_token =  process.env.SLACK_TOKEN || null;
-var slack_api_token =  process.env.SLACK_API_TOKEN || null;
-
+var slack_token =  process.env.SLACK_TOKEN || null,
+    slack_api_token = process.env.SLACK_API_TOKEN || null,
+    heroku_host = process.env.HEROKU_HOST;
 
 logger.debug('SLACK_TOKEN', slack_token);
+
 var app = express();
 app.use(bodyParser.urlencoded({extended: false}));
 app.set('package_json', package_json);
@@ -18,6 +19,7 @@ app.set('port', process.env.PORT  || 8081);
 app.set('hostname', process.env.HOST || '0.0.0.0');
 app.set('slack_token', slack_token);
 app.set('slack_api_token', slack_api_token);
+app.set('heroku_host', heroku_host);
 
 var love = []; // Temp in memory
 
@@ -29,13 +31,13 @@ app.get('*', function (req, res, next){ // Log all requests
     next();
 });
 
-// Authenticate all posts
+// Authenticate all posts as coming from slack
 app.post('*', function (req, res, next){
     logger.info(req.body);
     if (req.body && req.body['token'] === app.get('slack_token')) {
         return next();
     } else {
-        return res.status(401).send("Sorry. Your credentials are invalid.");
+        return res.status(401).send("Sorry. Your Slack credentials are invalid.");
     }
 });
 
@@ -58,7 +60,6 @@ function handle_ping(req, res){
 }
 
 function handle_love(req, res){
-
     // TODO: this is just a hack for a demo
     if (_.includes(req.body.text,'recent love')) {
         return handle_recentlove(req, res);
@@ -67,10 +68,11 @@ function handle_love(req, res){
     // get the @user from the beginning of message
     re = /^\@(\w+)\s+(.+)$/;
     matches = req.body.text.match(re);
-    var recipient_user_name;
+    var recipient_user_name,
+        love_message,
+        slack_user_names;
     if (matches && matches[1]) {
-        var slack_user_names = Object.keys(app.get('slack_users')) || [];
-
+        slack_user_names = Object.keys(app.get('slack_users')) || [];
         recipient_user_name = matches[1];
         love_message = matches[2];
 
@@ -80,6 +82,7 @@ function handle_love(req, res){
         }
     }
     var message = {},
+        love_id,
         fields = [
             'user_id',
             'user_name',
@@ -90,18 +93,22 @@ function handle_love(req, res){
         message[field] = req.body[field];
     });
     if (message) {
-        logger.info('***LOVE', message);
+        logger.info('love sent', message);
         love.push(message);
+        love_id = love.length - 1;
+        link = app.get('heroku_host') + 'love_id';
     }
 
     // send message back to chat
+    var text = req.body.user_name + ' sent love to ' + recipient_user_name;
+    text += ' for "' + love_message + '"!\n(' + link + ')';
     request({
         url: req.body.response_url,
         method: 'POST',
         json: {
-            text: req.body.user_name + ' sent love to ' + recipient_user_name + ' for "' + love_message + '"!'
+            text: text
         }
-    }, function(err, res, body){
+    }, function(err){
         if (err){
             logger.error(err);
         }
