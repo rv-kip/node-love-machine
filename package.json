@@ -7,6 +7,7 @@
     "start": "node app.js | ./node_modules/bunyan/bin/bunyan",
     "logging": "node app.js | ./node_modules/bunyan/bin/bunyan",
     "nodemon": "nodemon app.js | ./node_modules/bunyan/bin/bunyan",
+    "nodedebug": "node-debug app.js | ./node_modules/bunyan/bin/bunyan",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -24,6 +25,8 @@
     "bunyan": "^1.8.1",
     "express": "^4.14.0",
     "lodash": "^4.15.0",
-    "request": "^2.74.0"
+    "mysql": "2.5.*",
+    "request": "^2.74.0",
+    "sequelize": "^3.24.0"
   }
 }

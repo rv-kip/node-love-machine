@@ -1,0 +1,8 @@
+CREATE TABLE love (
+    `id` INTEGER(10) UNSIGNED AUTO_INCREMENT,
+    `created` DATETIME DEFAULT NULL,
+    `sender` VARCHAR(30) NOT NULL,
+    `recipient` VARCHAR(30) NOT NULL,
+    `message` VARCHAR(140) NOT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
