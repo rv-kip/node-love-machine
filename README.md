@@ -2,6 +2,7 @@
 
 # Summary
 A Love Machine integration for Slack.
+Background: https://www.quora.com/What-are-the-pros-and-cons-of-using-the-Love-Machine-inside-Linden-Lab
 
 # Installation
 ```
